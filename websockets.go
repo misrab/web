@@ -5,6 +5,8 @@
 package web
 
 import (
+	"log"
+
 	"net/http"
 
 	"github.com/gorilla/websocket"
@@ -35,8 +37,8 @@ func ListenToSocket(url, body string, c chan []byte) error {
 		_, p, err := conn.ReadMessage()
 
 		if err != nil {
-			// log.Println("Error:")
-			// log.Println(err.Error())
+			log.Println("Websocket error:")
+			log.Println(err.Error())
 
 			close(c)
 

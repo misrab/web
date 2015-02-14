@@ -21,7 +21,7 @@ import (
 		- url e.g. wss://live.stellar.org:9001
 		- body e.g. `{ "command": "subscribe", "streams": [ "transactions" ] }`
 */
-func ListenToSocket(url, body string, c chan []byte) error {
+func ListenToSocket(url, subscribeBody, unsubscribeBody string, c chan []byte, quit chan bool) error {
 	var defaultDialer *websocket.Dialer
 	var header http.Header
 
@@ -30,22 +30,31 @@ func ListenToSocket(url, body string, c chan []byte) error {
 
 	// log.Println("Connected to " + url + " websocket...")
 
+	conn.WriteMessage(websocket.TextMessage, []byte(subscribeBody))
 
-	conn.WriteMessage(websocket.TextMessage, []byte(body))
+	go func() {
+		for {
+			_, p, err := conn.ReadMessage()
+
+			if err != nil {
+				log.Println("Websocket error:")
+				log.Println(err.Error())
+
+				close(c)
+
+			    return err
+			}
+
+			c <- p
+		}
+	}()
 
 	for {
-		_, p, err := conn.ReadMessage()
-
-		if err != nil {
-			log.Println("Websocket error:")
-			log.Println(err.Error())
-
-			close(c)
-
-		    return err
-		}
-
-		c <- p
-		// PrintJsonBytes(p)
+		<- quit
+		log.Println("Unsubscribing...")
+		conn.WriteMessage(websocket.TextMessage, []byte(unsubscribeBody))
+		close(c)
 	}
+
+	return nil
 }

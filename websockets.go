@@ -21,7 +21,7 @@ import (
 		- url e.g. wss://live.stellar.org:9001
 		- body e.g. `{ "command": "subscribe", "streams": [ "transactions" ] }`
 */
-func ListenToSocket(url, subscribeBody, unsubscribeBody string, c chan []byte, quit chan bool) error {
+func ListenToSocket(url, subscribeBody, unsubscribeBody string, c chan []byte, quit chan bool) {
 	var defaultDialer *websocket.Dialer
 	var header http.Header
 
@@ -42,7 +42,7 @@ func ListenToSocket(url, subscribeBody, unsubscribeBody string, c chan []byte, q
 
 				close(c)
 
-			    return err
+			    return
 			}
 
 			c <- p
@@ -55,6 +55,4 @@ func ListenToSocket(url, subscribeBody, unsubscribeBody string, c chan []byte, q
 		conn.WriteMessage(websocket.TextMessage, []byte(unsubscribeBody))
 		close(c)
 	}
-
-	return nil
 }

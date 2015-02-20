@@ -13,7 +13,7 @@ import (
 
 	"io/ioutil"
 	"net/http"
-	"net/url"
+	// "net/url"
 )
 
 func Get(url, username, password string) ([]byte, error) {
@@ -30,9 +30,10 @@ func Get(url, username, password string) ([]byte, error) {
 	return ioutil.ReadAll(resp.Body)
 }
 
-// data e.g. url.Values{"key": {"Value"}, "id": {"123"}}
-func Post(url, username, password string, data url.Values) ([]byte, error) {
-	req, err := http.NewRequest("POST", url, bytes.NewBufferString(data.Encode()))
+// data := []byte(`{"method":"create_keys"}`)
+func Post(url, username, password string, data []byte) ([]byte, error) {
+	// bytes.NewBufferString(data.Encode())
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
 	if err != nil { return nil, err }
 
 	if username != "" { req.SetBasicAuth(username, password) }
@@ -45,8 +46,8 @@ func Post(url, username, password string, data url.Values) ([]byte, error) {
 	return ioutil.ReadAll(resp.Body)
 }
 
-func Patch(url, username, password string, data url.Values) ([]byte, error) {
-	req, err := http.NewRequest("PATCH", url, bytes.NewBufferString(data.Encode()))
+func Patch(url, username, password string, data []byte) ([]byte, error) {
+	req, err := http.NewRequest("PATCH", url, bytes.NewBuffer(data))
 	if err != nil { return nil, err }
 
 	if username != "" { req.SetBasicAuth(username, password) }
